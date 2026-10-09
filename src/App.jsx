@@ -4,41 +4,71 @@ import "aos/dist/aos.css";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
-import Footer from "./components/Footer";
 import Skills from "./components/Skills";
-import Certificates from "./components/Certificates";
+import HealthDemo from "./components/HealthDemo";
 import Project from "./components/Project";
+import Certificates from "./components/Certificates";
+import Guestbook from "./components/Guestbook";
 import Contact from "./components/Contact";
+import Footer from "./components/Footer";
+import FloatingTelegram from "./components/FloatingTelegram";
+
 const App = () => {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("portfolio_theme");
+      if (savedTheme) {
+        return savedTheme === "dark";
+      }
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    return true;
+  });
+
   useEffect(() => {
     AOS.init({
-      duration: 1000,
-      once: false,
-      offset: 100,
+      duration: 800,
+      once: true,
+      offset: 50,
     });
-    document.documentElement.classList.toggle("dark");
   }, []);
+
   useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("portfolio_theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("portfolio_theme", "light");
+    }
     AOS.refresh();
   }, [isDark]);
+
   const toggleDarkMode = () => {
-    const newIsDark = !isDark;
-    setIsDark(newIsDark);
-    document.documentElement.classList.toggle("dark");
+    setIsDark((prev) => !prev);
   };
+
   return (
     <div
-      className={`${isDark ? "bg-linear-to-br min-h-screen from-gray-900 via-[#2e0d10] to-red-900" : "bg-linear-to-r min-h-screen from-gray-100 to-red-100"}`}
+      className={`min-h-screen transition-colors duration-500 font-sans selection:bg-red-500 selection:text-white ${
+        isDark
+          ? "bg-gradient-to-br from-gray-950 via-[#1a0608] to-stone-950 text-gray-100"
+          : "bg-gradient-to-br from-slate-50 via-red-50/40 to-stone-100 text-gray-900"
+      }`}
     >
       <Navbar isDark={isDark} toggleDarkMode={toggleDarkMode} />
-      <Hero />
-      <About />
-      <Skills />
-      <Certificates />
-      <Project />
-      <Contact />
+      <main className="relative pb-20">
+        <Hero />
+        <About />
+        <Skills />
+        <HealthDemo />
+        <Project />
+        <Certificates />
+        <Guestbook />
+        <Contact />
+      </main>
       <Footer />
+      <FloatingTelegram />
     </div>
   );
 };
